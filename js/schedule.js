@@ -17,8 +17,8 @@ const needsHands = (t) => t.active ?? KINDS[t.kind]?.active ?? true;
 
 // Each on-the-day task gets a start and end (minutes after midnight).
 // - A fixed start time always wins.
-// - Otherwise a task finishes by its "done by" time (default: serving time), or earlier if
-//   another task depends on it — it must then finish before that task starts.
+// - Otherwise it finishes before the first task that depends on it starts, or by its own
+//   "done by" time if that is earlier. A task nothing depends on defaults to serving time.
 export function schedule(dinner) {
   const serve = toMins(dinner.serveTime) ?? 19 * 60 + 30;
   const tasks = dinnerTasks(dinner.id).filter((t) => t.phase === 'dayof');
@@ -44,8 +44,11 @@ export function schedule(dinner) {
       start = serve - dur; // dependency loop: fall back rather than recurse forever
     } else {
       visiting.add(t.id);
-      let finish = toMins(t.doneBy) ?? serve;
-      for (const dep of dependentsOf.get(t.id) || []) finish = Math.min(finish, startOf(dep));
+      // A task that feeds later steps finishes when the first of them starts; only a task
+      // nothing depends on defaults to the serving time.
+      const deps = dependentsOf.get(t.id) || [];
+      let finish = toMins(t.doneBy) ?? (deps.length ? Infinity : serve);
+      for (const dep of deps) finish = Math.min(finish, startOf(dep));
       visiting.delete(t.id);
       start = finish - dur;
     }

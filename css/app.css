@@ -421,3 +421,17 @@ body.bare .toast { bottom: calc(env(safe-area-inset-bottom) + 24px); background:
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ---------- menu editing ---------- */
+.menu-item { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.menu-item .dish-card { border: 0; border-radius: 0; margin: 0; }
+.item-actions { display: flex; justify-content: flex-end; gap: 2px; padding: 0 6px 4px; }
+.item-actions .icon-btn.small, .course-row .icon-btn.small { width: 40px; height: 40px; }
+.icon-btn:disabled { opacity: .3; cursor: default; }
+.ic.flip { transform: rotate(180deg); }
+.course-rows { display: grid; gap: 8px; }
+.course-row { display: flex; align-items: center; gap: 4px; background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 4px 4px 4px 6px; }
+.course-row input { flex: 1; min-width: 0; border: 0 !important; padding: 8px !important; }
+.course-row .small { min-width: 1.2em; text-align: center; }
+.menu-item .dish-card { padding-bottom: 0; }
+.item-actions { padding-top: 0; }

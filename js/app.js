@@ -1,7 +1,7 @@
 import { init, flush } from './store.js';
 import { setRefresher, pageHead, empty } from './ui.js';
 import { homeView, dinnersView, dinnerFormView } from './views/home.js';
-import { menuView, addDishView, libraryView } from './views/menu.js';
+import { menuView, addDishView, libraryView, coursesView } from './views/menu.js';
 import { dishView, dishEditView, dinnerDishView } from './views/dish.js';
 import { tasksView, taskFormView, timelineView, serviceView } from './views/tasks.js';
 import { shoppingView, setShopGroup } from './views/shopping.js';
@@ -20,7 +20,8 @@ const routes = [
   [/^\/dish\/new$/, (q) => dishEditView(null, q)],
   [/^\/dish\/([\w-]+)\/edit$/, (id, q) => dishEditView(id, q)],
   [/^\/dish\/([\w-]+)$/, (id, q) => dishView(id, q)],
-  [/^\/dd\/([\w-]+)$/, (id) => dinnerDishView(id)],
+  [/^\/dd\/([\w-]+)$/, (id, q) => dinnerDishView(id, q)],
+  [/^\/menu\/courses$/, () => coursesView()],
   [/^\/tasks$/, (q) => tasksView(q)],
   [/^\/task\/new$/, (q) => taskFormView(null, q)],
   [/^\/task\/([\w-]+)$/, (id, q) => taskFormView(id, q)],

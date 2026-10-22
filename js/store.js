@@ -193,7 +193,7 @@ export function addDishToDinner(dinnerId, dishId, course) {
     dinnerId,
     dishId,
     course: course || '',
-    order: Date.now(),
+    order: Math.max(0, ...state.dinnerDishes.filter((x) => x.dinnerId === dinnerId).map((x) => x.order || 0)) + 1,
     version: 'working',
     portions: null,
     changes: '',
@@ -306,6 +306,35 @@ export function removeDishFromDinner(ddId) {
   if (!dd) return;
   removeWhere('dinnerDishes', (x) => x.id === ddId);
   for (const t of state.tasks) if (t.dinnerId === dd.dinnerId && t.dishId === dd.dishId) t.dishId = null;
+}
+
+// Swap a menu item with its neighbour in the same course (dir: -1 up, +1 down).
+export function moveDinnerDish(ddId, dir) {
+  const dd = find('dinnerDishes', ddId);
+  if (!dd) return;
+  const list = dinnerDishes(dd.dinnerId).filter((x) => x.course === dd.course);
+  const i = list.indexOf(dd);
+  const other = list[i + dir];
+  if (!other) return;
+  [dd.order, other.order] = [other.order, dd.order];
+  if (dd.order === other.order) dd.order += dir;
+}
+
+// Apply an edited course list: renames carry their dishes along; dishes in deleted
+// courses come off the menu.
+export function setCourses(dinnerId, edits) {
+  const dinner = find('dinners', dinnerId);
+  if (!dinner) return;
+  for (const { from, to } of edits) {
+    if (!from || from === to) continue;
+    for (const dd of dinnerDishes(dinnerId)) {
+      if (dd.course === from) {
+        if (to) dd.course = to;
+        else removeDishFromDinner(dd.id);
+      }
+    }
+  }
+  dinner.courses = edits.map((e) => e.to).filter(Boolean);
 }
 
 export function deleteDish(id) {

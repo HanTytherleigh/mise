@@ -3,7 +3,7 @@ import { requestPersistence } from '../db.js';
 import { loadSample } from '../sample.js';
 import { esc, icon, pageHead, on, toast, refresh, go, fmtStamp } from '../ui.js';
 
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.1.0';
 
 function backupFile() {
   const json = JSON.stringify({ app: 'mise', version: APP_VERSION, exportedAt: new Date().toISOString(), data: state });
@@ -74,7 +74,7 @@ export function settingsView() {
 
       <section class="card">
         <h2 class="section-title">Try it out</h2>
-        <p class="small muted">Adds an example four-course dinner with dishes, tasks, storage and notes.</p>
+        <p class="small muted">Adds an example three-course dinner (Dany's Birthday) with dishes, tasks, storage and notes.</p>
         <button class="btn ghost block" data-act="sample">Add sample dinner</button>
       </section>
 

@@ -69,5 +69,5 @@ and open http://localhost:8080. (Service workers need `localhost` or HTTPS, so o
 | `js/schedule.js` | Backwards scheduling, next recommended task, conflict detection |
 | `js/shopping.js` | Builds the consolidated shopping list for a dinner |
 | `js/views/*.js` | One module per area: home, menu, dish, tasks, shopping, notes, settings |
-| `js/sample.js` | The example "Autumn supper" dinner |
+| `js/sample.js` | The example dinner (Dany's Birthday) |
 | `sw.js` | Offline caching |

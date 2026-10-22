@@ -1,6 +1,6 @@
 // Offline support: the app shell is cached on install and served cache-first, refreshed in the
 // background. Bump VERSION whenever app files change so phones pick up the new release.
-const VERSION = 'mise-v1.0.0';
+const VERSION = 'mise-v1.1.0';
 
 const SHELL = [
   './',

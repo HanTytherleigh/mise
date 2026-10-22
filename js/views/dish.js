@@ -54,7 +54,7 @@ export function dishView(id, query) {
         </div>
         ${dd.changes ? `<h3 class="mini-title">Changes for this dinner</h3>${prose(dd.changes)}` : ''}
         ${dd.extraIngredients?.length ? `<h3 class="mini-title">Extra for this dinner</h3>${renderIngredients(dd.extraIngredients)}` : ''}
-        <a class="btn ghost small" href="#/dd/${dd.id}">${icon('edit')} Changes for this dinner</a>
+        <a class="btn ghost small" href="#/dd/${dd.id}">${icon('edit')} Edit for this dinner</a>
       </section>
       <section class="block">
         <div class="row between"><h2 class="section-title">Tasks</h2><a class="text-link" href="#/task/new?dish=${dish.id}">${icon('plus')} Add</a></div>
@@ -235,18 +235,20 @@ export function dishEditView(id, query) {
   };
 }
 
-export function dinnerDishView(id) {
+export function dinnerDishView(id, query = {}) {
   const dd = find('dinnerDishes', id);
   const dish = find('dishes', dd?.dishId);
   const dinner = find('dinners', dd?.dinnerId);
   if (!dd || !dish || !dinner) return null;
   const courses = dinner.courses.includes(dd.course) ? dinner.courses : [...dinner.courses, dd.course].filter(Boolean);
+  const back = query.from === 'menu' ? '/menu' : `/dish/${dish.id}?dd=${dd.id}&tab=dinner`;
   return {
     tab: 'menu',
-    title: 'Changes for this dinner',
+    title: 'Edit menu item',
     html: `
-      ${pageHead({ eyebrow: esc(`${dish.name} · ${dinner.name}`), title: 'For this dinner', back: `/dish/${dish.id}?dd=${dd.id}&tab=dinner` })}
+      ${pageHead({ eyebrow: esc(dinner.name), title: 'Edit menu item', back })}
       <form class="form" data-form="dd">
+        <label class="field"><span>Dish name</span><input name="name" required value="${esc(dish.name)}" autocomplete="off"><small>Renames it in your notebook too.</small></label>
         <div class="grid2">
           <label class="field"><span>Course</span><select name="course">${courses.map((c) => `<option ${c === dd.course ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
           <label class="field"><span>Portions</span><input type="number" name="portions" min="1" inputmode="numeric" value="${esc(dd.portions ?? '')}" placeholder="${esc(dinner.guests)} (guests)"></label>
@@ -260,11 +262,24 @@ export function dinnerDishView(id) {
         <label class="field"><span>Changes for this dinner</span><textarea name="changes" rows="4" placeholder="Halve the chilli for Sam; plate in the shallow bowls">${esc(dd.changes)}</textarea></label>
         <label class="field"><span>Extra ingredients</span><textarea name="extra" rows="3" class="mono" placeholder="Added to the shopping list for this dinner only">${esc(ingredientsText(dd.extraIngredients))}</textarea><small>Not scaled — write the amount you need.</small></label>
         <button class="btn primary block" type="submit">Save</button>
-      </form>`,
+      </form>
+      <div class="danger-zone">
+        <a class="btn ghost block" href="#/dish/${dish.id}/edit?v=${dish.working ? 'working' : 'original'}&dd=${dd.id}">${icon('edit')} Edit the recipe</a>
+        <button class="btn danger block" data-act="remove">Remove from this menu</button>
+      </div>`,
     mount(root) {
+      on(root, 'click', '[data-act="remove"]', () => {
+        if (!confirm(`Remove ${dish.name} from this menu? It stays in your notebook.`)) return;
+        removeDishFromDinner(dd.id);
+        commit();
+        toast('Removed from the menu');
+        go('/menu');
+      });
       on(root, 'submit', '[data-form="dd"]', (form, ev) => {
         ev.preventDefault();
         const f = formData(form);
+        dish.name = f.name.trim() || dish.name;
+        dish.updatedAt = Date.now();
         Object.assign(dd, {
           course: f.course,
           portions: parseInt(f.portions, 10) || null,
@@ -274,7 +289,7 @@ export function dinnerDishView(id) {
         });
         commit();
         toast('Saved');
-        go(`/dish/${dish.id}?dd=${dd.id}&tab=dinner`);
+        go(back);
       });
     },
   };
